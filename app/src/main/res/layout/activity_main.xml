@@ -48,14 +48,29 @@
 		android:layout_marginStart="16dp"
 		android:layout_marginEnd="16dp"
 		android:background="@drawable/btn_red_large"
+		android:onClick="handleRegister"
 		android:text="Register"
 		android:textAllCaps="false"
 		android:textColor="@android:color/white"
-		android:onClick="handleRegister"
 		app:layout_constraintBottom_toBottomOf="parent"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toTopOf="@+id/guideline"
-		/>
+		app:layout_constraintTop_toTopOf="@+id/guideline" />
+
+	<TextView
+		android:id="@+id/textView"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginStart="15dp"
+		android:layout_marginTop="25dp"
+		android:layout_marginEnd="15dp"
+		android:layout_marginBottom="75dp"
+		android:text="Welcome to Intent Exercise"
+		android:textColor="#180202"
+		android:textSize="25dp"
+		app:layout_constraintBottom_toTopOf="@+id/btn_register"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/image_background" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
