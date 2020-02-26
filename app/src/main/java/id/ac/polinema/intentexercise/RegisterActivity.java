@@ -29,21 +29,21 @@ public class RegisterActivity extends AppCompatActivity {
     private EditText inputhomepage;
     private EditText inputabout;
 
+
     private static final String TAG = RegisterActivity.class.getCanonicalName();
     private static final int GALLERY_REQUEST_CODE = 1;
     private ImageView avatarImage;
-    private ImageView image_profile;
 
     public static final String FULLNAME_KEY = "fullname";
     public static final String EMAIL_KEY = "email";
     public static final String HOMEPAGE_KEY = "homepage";
     public static final String ABOUT_KEY = "about";
+    public static final String IMAGE_KEY = "image";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
-        avatarImage = findViewById(R.id.image_profile);
 
         inputname = findViewById(R.id.text_fullname);
         inputemail = findViewById(R.id.text_email);
@@ -51,6 +51,7 @@ public class RegisterActivity extends AppCompatActivity {
         inputconfirm_password = findViewById(R.id.text_confirm_password);
         inputhomepage = findViewById(R.id.text_homepage);
         inputabout = findViewById(R.id.text_about);
+        avatarImage = findViewById(R.id.image_profile);
     }
 
     @Override
@@ -59,93 +60,26 @@ public class RegisterActivity extends AppCompatActivity {
         if (resultCode == RESULT_CANCELED) {
             return;
         }
-        if (resultCode != RESULT_CANCELED) {
-            switch (requestCode) {
-                case 0:
-                    if (resultCode == RESULT_OK && data != null) {
-                        Bitmap selectedImage = (Bitmap) data.getExtras().get("data");
-                        image_profile.setImageBitmap(selectedImage);
-                    }
 
-                    break;
-                case 1:
-                    if (resultCode == RESULT_OK && data != null) {
-                        Uri selectedImage = data.getData();
-                        String[] filePathColumn = {MediaStore.Images.Media.DATA};
-                        if (selectedImage != null) {
-                            Cursor cursor = getContentResolver().query(selectedImage,
-                                    filePathColumn, null, null, null);
-                            if (cursor != null) {
-                                cursor.moveToFirst();
-
-                                if (requestCode == GALLERY_REQUEST_CODE) {
-                                    if (data != null) {
-                                        try {
-                                            int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-                                            String picturePath = cursor.getString(columnIndex);
-                                            image_profile.setImageBitmap(BitmapFactory.decodeFile(picturePath));
-                                            cursor.close();
-                                        }
-                                    }
-                                }
-                                break;
-                            }
-                        }
-                        if (requestCode == GALLERY_REQUEST_CODE) {
-                            if (data != null) {
-                                try {
-                                    Uri imageUrl = data.getData();
-                                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUrl);
-                                    avatarImage.setImageBitmap(bitmap);
-                                } catch (IOException e) {
-                                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
-                                    image_profile.setImageBitmap(bitmap);
-                                } catch (IOException e) {
-                                    Toast.makeText(this, "Can't load image", Toast.LENGTH_SHORT).show();
-                                    Log.e(TAG, e.getMessage());
-                                }
-                            }
-                        }
-                    }
+        if (requestCode == GALLERY_REQUEST_CODE) {
+            if (data != null) {
+                try {
+                    Uri imageUri = data.getData();
+                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
+                    avatarImage.setImageBitmap(bitmap);
+                } catch (IOException e) {
+                    Toast.makeText(this, "Can't load image", Toast.LENGTH_SHORT).show();
+                    Log.e(TAG, e.getMessage());
                 }
             }
         }
+    }
 
-
-    public void handleGambar(View view) {
+    public void handleChangeAvatar(View view) {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(intent, GALLERY_REQUEST_CODE);
     }
 
-    public void handleChangeAvatar(View view) {
-        selectImage(RegisterActivity.this);
-    }
-    private void selectImage(Context context) {
-        final CharSequence[] options = {"Take Photo", "Choose from Gallery", "Cancel"};
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setTitle("Choose your profile picture");
-
-        builder.setItems(options, new DialogInterface.OnClickListener() {
-
-            @Override
-            public void onClick(DialogInterface dialog, int item) {
-
-                if (options[item].equals("Take Photo")) {
-                    Intent takePicture = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-                    startActivityForResult(takePicture, 0);
-
-                } else if (options[item].equals("Choose from Gallery")) {
-                    Intent pickPhoto = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                    startActivityForResult(pickPhoto, 1);
-
-                } else if (options[item].equals("Cancel")) {
-                    dialog.dismiss();
-                }
-            }
-        });
-        builder.show();
-    }
     public void handleOk(View view) {
         String fullnameText = inputname.getText().toString();
         String emailText = inputemail.getText().toString();
@@ -157,6 +91,12 @@ public class RegisterActivity extends AppCompatActivity {
         if (!(fullnameText).equals("") && !(emailText).equals("") && !(passwordText).equals("") && !(confirmText).equals("") && !(homepageText).equals("") && !(aboutText).equals("")) {
             if ((passwordText).equals(confirmText)) {
                 Intent intent = new Intent(this, ProfileActivity.class);
+                avatarImage.buildDrawingCache();
+                Bitmap image= avatarImage.getDrawingCache();
+                Bundle extras = new Bundle();
+                extras.putParcelable("IMAGE_KEY", image);
+                intent.putExtras(extras);
+
                 intent.putExtra("FULLNAME_KEY", fullnameText);
                 intent.putExtra("EMAIL_KEY", emailText);
                 intent.putExtra("PASSWORD_KEY", passwordText);
